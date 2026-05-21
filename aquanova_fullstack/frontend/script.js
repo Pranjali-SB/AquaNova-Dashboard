@@ -31,6 +31,12 @@ const API_URL =
   "https://aquanova-dashboard.onrender.com";
 
 /* =========================
+   THRESHOLD VALUE
+========================= */
+
+const THRESHOLD = 1;
+
+/* =========================
    KEEP USER LOGGED IN
 ========================= */
 
@@ -254,6 +260,18 @@ async function loadSensorData() {
       latest.binWeight + " g";
 
     /* =========================
+       THRESHOLD ALERT
+    ========================= */
+
+    if (latest.binWeight > THRESHOLD) {
+
+      showThresholdPopup(
+        "⚠ ALERT: Bin Level Exceeded Threshold!"
+      );
+
+    }
+
+    /* =========================
        GPS TEXT
     ========================= */
 
@@ -308,10 +326,14 @@ async function loadSensorData() {
             data: weights,
 
             borderColor:
-              "#55ffd9",
+              latest.binWeight > THRESHOLD
+                ? "red"
+                : "#55ffd9",
 
             backgroundColor:
-              "rgba(85,255,217,0.2)",
+              latest.binWeight > THRESHOLD
+                ? "rgba(255,0,0,0.2)"
+                : "rgba(85,255,217,0.2)",
 
             tension: 0.4,
 
@@ -320,7 +342,9 @@ async function loadSensorData() {
             borderWidth: 3,
 
             pointBackgroundColor:
-              "#55ffd9"
+              latest.binWeight > THRESHOLD
+                ? "red"
+                : "#55ffd9"
 
           }]
 
@@ -431,20 +455,62 @@ async function loadSensorData() {
 }
 
 /* =========================
-   CUSTOM ALERT
+   NORMAL ALERT
 ========================= */
 
 function showAlert(message){
 
-  document.getElementById(
-    "customAlert"
-  ).style.display = "flex";
+  const alertBox =
+    document.getElementById(
+      "customAlert"
+    );
+
+  alertBox.style.display =
+    "flex";
 
   document.getElementById(
     "alertText"
   ).innerText = message;
 
 }
+
+/* =========================
+   THRESHOLD POPUP ALERT
+========================= */
+
+function showThresholdPopup(message){
+
+  const popup =
+    document.createElement("div");
+
+  popup.innerText = message;
+
+  popup.style.position = "fixed";
+  popup.style.top = "30px";
+  popup.style.right = "30px";
+  popup.style.background = "red";
+  popup.style.color = "white";
+  popup.style.padding = "20px";
+  popup.style.fontSize = "18px";
+  popup.style.fontWeight = "bold";
+  popup.style.borderRadius = "12px";
+  popup.style.zIndex = "9999";
+  popup.style.boxShadow =
+    "0 0 20px rgba(255,0,0,0.8)";
+
+  document.body.appendChild(popup);
+
+  setTimeout(() => {
+
+    popup.remove();
+
+  }, 5000);
+
+}
+
+/* =========================
+   CLOSE ALERT
+========================= */
 
 function closeAlert(){
 
