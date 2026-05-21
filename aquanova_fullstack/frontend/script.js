@@ -1,4 +1,151 @@
 alert("script loaded");
+
+/* =========================
+   FIREBASE CONFIG
+========================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAPDVTQg2QdszsuI_OHKf0eONtVE7KzrCw",
+  authDomain: "aquanova-auth.firebaseapp.com",
+  projectId: "aquanova-auth",
+  storageBucket: "aquanova-auth.firebasestorage.app",
+  messagingSenderId: "758613244238",
+  appId: "1:758613244238:web:550efcc2e86535dfdf061f",
+  measurementId: "G-WNXTQNL3P8"
+};
+
+/* =========================
+   FIREBASE INITIALIZE
+========================= */
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+
+const provider =
+  new firebase.auth.GoogleAuthProvider();
+
+/* =========================
+   BACKEND URL
+========================= */
+
+const API_URL =
+  "https://aquanova-dashboard.onrender.com";
+
+/* =========================
+   GOOGLE LOGIN
+========================= */
+
+document
+  .getElementById("googleLogin")
+  .addEventListener("click", async () => {
+
+    console.log("button clicked");
+
+    try {
+
+      const result =
+        await auth.signInWithPopup(provider);
+
+      const user = result.user;
+
+      console.log("Google login success");
+
+      const response = await fetch(
+        `${API_URL}/api/auth/google-login`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            name: user.displayName,
+            email: user.email
+          })
+        }
+      );
+
+      if (!response.ok) {
+
+        const err = await response.json();
+
+        showAlert(err.message);
+
+        return;
+
+      }
+
+      const data = await response.json();
+
+      showDashboard(
+        user.displayName,
+        data.role
+      );
+
+      showSuccess(
+        "Logged in Successfully"
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      showAlert(err.message);
+
+    }
+
+});
+
+/* =========================
+   SHOW DASHBOARD
+========================= */
+
+function showDashboard(name, role) {
+
+  document.getElementById(
+    "loginSection"
+  ).style.display = "none";
+
+  document.getElementById(
+    "dashboard"
+  ).style.display = "block";
+
+  document.getElementById(
+    "userName"
+  ).innerText = name;
+
+  document.getElementById(
+    "role"
+  ).innerText = "Role: " + role;
+
+  if (role === "admin") {
+
+    document.getElementById(
+      "adminPanel"
+    ).style.display = "block";
+
+  }
+
+  loadSensorData();
+
+}
+
+/* =========================
+   LOGOUT
+========================= */
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener("click", async () => {
+
+    await auth.signOut();
+
+    location.reload();
+
+});
+
 /* =========================
    SENSOR DATA
 ========================= */
@@ -21,19 +168,22 @@ async function loadSensorData() {
        BIN WEIGHT
     ========================= */
 
-    document.getElementById("binWeight")
-      .innerText = latest.binWeight + " g";
+    document.getElementById(
+      "binWeight"
+    ).innerText =
+      latest.binWeight + " g";
 
     /* =========================
        GPS TEXT
     ========================= */
 
-    document.getElementById("gpsText")
-      .innerText =
-        "Latitude: " +
-        latest.location.lat +
-        " , Longitude: " +
-        latest.location.lng;
+    document.getElementById(
+      "gpsText"
+    ).innerText =
+      "Latitude: " +
+      latest.location.lat +
+      " , Longitude: " +
+      latest.location.lng;
 
     /* =========================
        CHART
@@ -50,7 +200,9 @@ async function loadSensorData() {
       ).reverse();
 
     const ctx =
-      document.getElementById("weightChart");
+      document.getElementById(
+        "weightChart"
+      );
 
     new Chart(ctx, {
 
@@ -170,10 +322,61 @@ async function loadSensorData() {
 
   } catch (err) {
 
+    console.error(err);
+
     showAlert(
       "Unable to load sensor data"
     );
 
   }
+
+}
+
+/* =========================
+   CUSTOM ALERT
+========================= */
+
+function showAlert(message){
+
+  document.getElementById(
+    "customAlert"
+  ).style.display = "flex";
+
+  document.getElementById(
+    "alertText"
+  ).innerText = message;
+
+}
+
+function closeAlert(){
+
+  document.getElementById(
+    "customAlert"
+  ).style.display = "none";
+
+}
+
+/* =========================
+   SUCCESS NOTIFICATION
+========================= */
+
+function showSuccess(message){
+
+  const notification =
+    document.getElementById(
+      "successNotification"
+    );
+
+  notification.innerText = message;
+
+  notification.style.display =
+    "block";
+
+  setTimeout(() => {
+
+    notification.style.display =
+      "none";
+
+  }, 3000);
 
 }
