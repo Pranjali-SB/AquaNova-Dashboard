@@ -37,6 +37,12 @@ const API_URL =
 const THRESHOLD = 1;
 
 /* =========================
+   PREVENT MULTIPLE POPUPS
+========================= */
+
+let popupVisible = false;
+
+/* =========================
    KEEP USER LOGGED IN
 ========================= */
 
@@ -263,7 +269,10 @@ async function loadSensorData() {
        THRESHOLD ALERT
     ========================= */
 
-    if (latest.binWeight > THRESHOLD) {
+    if (
+      latest.binWeight > THRESHOLD &&
+      !popupVisible
+    ) {
 
       showThresholdPopup(
         "⚠ ALERT: Bin Level Exceeded Threshold!"
@@ -480,6 +489,8 @@ function showAlert(message){
 
 function showThresholdPopup(message){
 
+  popupVisible = true;
+
   const popup =
     document.createElement("div");
 
@@ -503,6 +514,8 @@ function showThresholdPopup(message){
   setTimeout(() => {
 
     popup.remove();
+
+    popupVisible = false;
 
   }, 5000);
 
