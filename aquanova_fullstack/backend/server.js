@@ -56,8 +56,8 @@ const SensorData = mongoose.model("SensorData", sensorSchema);
 const allowedEmails = [
 
   "pranjali.bidwe2904@gmail.com",
-  "admin@aquanova.com",
-  "worker@aquanova.com"
+  "aaryaashtekar111@gmail.com",
+  "chetnabendale04@gmail.com"
 
 ];
 

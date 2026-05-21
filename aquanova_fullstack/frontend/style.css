@@ -301,3 +301,11 @@ canvas{
   }
 
 }
+
+#dashboard{
+  display: none;
+}
+
+#loginSection{
+  display: none;
+}

@@ -1,5 +1,3 @@
-alert("script loaded");
-
 /* =========================
    FIREBASE CONFIG
 ========================= */
@@ -60,7 +58,8 @@ auth.onAuthStateChanged(async (user) => {
 
       if (!response.ok) return;
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       showDashboard(
         user.displayName,
@@ -72,6 +71,12 @@ auth.onAuthStateChanged(async (user) => {
       console.error(err);
 
     }
+
+  } else {
+
+    document.getElementById(
+      "loginSection"
+    ).style.display = "flex";
 
   }
 
@@ -94,7 +99,9 @@ document
 
       const user = result.user;
 
-      console.log("Google login success");
+      console.log(
+        "Google login success"
+      );
 
       const response = await fetch(
         `${API_URL}/api/auth/google-login`,
