@@ -19,6 +19,13 @@ const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 
 /* =========================
+   BACKEND URL
+========================= */
+
+const API_URL =
+  "https://aquanova-backend-g0m8.onrender.com";
+
+/* =========================
    GOOGLE LOGIN
 ========================= */
 
@@ -33,7 +40,7 @@ document.getElementById("googleLogin")
     const user = result.user;
 
     const response = await fetch(
-      "http://localhost:5000/api/auth/google-login",
+      `${API_URL}/api/auth/google-login`,
       {
         method: "POST",
 
@@ -64,12 +71,12 @@ document.getElementById("googleLogin")
 
     const data = await response.json();
 
-showDashboard(
-  user.displayName,
-  data.role
-);
+    showDashboard(
+      user.displayName,
+      data.role
+    );
 
-showSuccess("Logged in Successfully");
+    showSuccess("Logged in Successfully");
 
   } catch (err) {
 
@@ -128,7 +135,7 @@ document.getElementById("logoutBtn")
 async function loadSensorData() {
 
   const response = await fetch(
-    "http://localhost:5000/api/sensor-data"
+    `${API_URL}/api/sensor-data`
   );
 
   const data = await response.json();
@@ -188,7 +195,8 @@ async function loadSensorData() {
 
         borderColor: "#55ffd9",
 
-        backgroundColor: "rgba(85,255,217,0.2)",
+        backgroundColor:
+          "rgba(85,255,217,0.2)",
 
         tension: 0.4,
 
@@ -196,7 +204,8 @@ async function loadSensorData() {
 
         borderWidth: 3,
 
-        pointBackgroundColor: "#55ffd9"
+        pointBackgroundColor:
+          "#55ffd9"
 
       }]
 
@@ -227,7 +236,8 @@ async function loadSensorData() {
           },
 
           grid: {
-            color: "rgba(255,255,255,0.1)"
+            color:
+              "rgba(255,255,255,0.1)"
           }
 
         },
@@ -239,7 +249,8 @@ async function loadSensorData() {
           },
 
           grid: {
-            color: "rgba(255,255,255,0.1)"
+            color:
+              "rgba(255,255,255,0.1)"
           }
 
         }
@@ -275,12 +286,12 @@ async function loadSensorData() {
       item.location.lat,
       item.location.lng
     ])
-      .addTo(map)
-      .bindPopup(
-        "Weight: " +
-        item.binWeight +
-        " g"
-      );
+    .addTo(map)
+    .bindPopup(
+      "Weight: " +
+      item.binWeight +
+      " g"
+    );
 
   });
 
@@ -314,7 +325,9 @@ function closeAlert(){
 function showSuccess(message){
 
   const notification =
-    document.getElementById("successNotification");
+    document.getElementById(
+      "successNotification"
+    );
 
   notification.innerText = message;
 
