@@ -1,342 +1,178 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyAPDVTQg2QdszsuI_OHKf0eONtVE7KzrCw",
-  authDomain: "aquanova-auth.firebaseapp.com",
-  projectId: "aquanova-auth",
-  storageBucket: "aquanova-auth.firebasestorage.app",
-  messagingSenderId: "758613244238",
-  appId: "1:758613244238:web:550efcc2e86535dfdf061f",
-  measurementId: "G-WNXTQNL3P8"
-};
-
-/* =========================
-   FIREBASE INITIALIZE
-========================= */
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-
-const provider = new firebase.auth.GoogleAuthProvider();
-
-/* =========================
-   BACKEND URL
-========================= */
-
-const API_URL =
-  "https://aquanova-backend-g0m8.onrender.com";
-
-/* =========================
-   GOOGLE LOGIN
-========================= */
-
-document.getElementById("googleLogin")
-.addEventListener("click", async () => {
-
-  try {
-
-    const result =
-      await auth.signInWithPopup(provider);
-
-    const user = result.user;
-
-    const response = await fetch(
-      `${API_URL}/api/auth/google-login`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          name: user.displayName,
-          email: user.email
-        })
-      }
-    );
-
-    /* =========================
-       UNAUTHORIZED USER
-    ========================= */
-
-    if (!response.ok) {
-
-      const err = await response.json();
-
-      showAlert(err.message);
-
-      return;
-
-    }
-
-    const data = await response.json();
-
-    showDashboard(
-      user.displayName,
-      data.role
-    );
-
-    showSuccess("Logged in Successfully");
-
-  } catch (err) {
-
-    showAlert(err.message);
-
-  }
-
-});
-
-/* =========================
-   SHOW DASHBOARD
-========================= */
-
-function showDashboard(name, role) {
-
-  document.getElementById("loginSection")
-    .style.display = "none";
-
-  document.getElementById("dashboard")
-    .style.display = "block";
-
-  document.getElementById("userName")
-    .innerText = name;
-
-  document.getElementById("role")
-    .innerText = "Role: " + role;
-
-  if (role === "admin") {
-
-    document.getElementById("adminPanel")
-      .style.display = "block";
-
-  }
-
-  loadSensorData();
-
-}
-
-/* =========================
-   LOGOUT
-========================= */
-
-document.getElementById("logoutBtn")
-.addEventListener("click", async () => {
-
-  await auth.signOut();
-
-  location.reload();
-
-});
-
 /* =========================
    SENSOR DATA
 ========================= */
 
 async function loadSensorData() {
 
-  const response = await fetch(
-    `${API_URL}/api/sensor-data`
-  );
+  try {
 
-  const data = await response.json();
+    const response = await fetch(
+      `${API_URL}/api/sensor-data`
+    );
 
-  if (data.length === 0) return;
+    const data = await response.json();
 
-  const latest = data[0];
+    if (data.length === 0) return;
 
-  /* =========================
-     BIN WEIGHT
-  ========================= */
+    const latest = data[0];
 
-  document.getElementById("binWeight")
-    .innerText = latest.binWeight + " g";
+    /* =========================
+       BIN WEIGHT
+    ========================= */
 
-  /* =========================
-     GPS TEXT
-  ========================= */
+    document.getElementById("binWeight")
+      .innerText = latest.binWeight + " g";
 
-  document.getElementById("gpsText")
-    .innerText =
-      "Latitude: " +
-      latest.location.lat +
-      " , Longitude: " +
-      latest.location.lng;
+    /* =========================
+       GPS TEXT
+    ========================= */
 
-  /* =========================
-     CHART
-  ========================= */
+    document.getElementById("gpsText")
+      .innerText =
+        "Latitude: " +
+        latest.location.lat +
+        " , Longitude: " +
+        latest.location.lng;
 
-  const weights =
-    data.map(item =>
-      item.binWeight
-    ).reverse();
+    /* =========================
+       CHART
+    ========================= */
 
-  const labels =
-    data.map((item, index) =>
-      "Reading " + (index + 1)
-    ).reverse();
+    const weights =
+      data.map(item =>
+        item.binWeight
+      ).reverse();
 
-  const ctx =
-    document.getElementById("weightChart");
+    const labels =
+      data.map((item, index) =>
+        "Reading " + (index + 1)
+      ).reverse();
 
-  new Chart(ctx, {
+    const ctx =
+      document.getElementById("weightChart");
 
-    type: "line",
+    new Chart(ctx, {
 
-    data: {
+      type: "line",
 
-      labels,
+      data: {
 
-      datasets: [{
+        labels,
 
-        label: "Bin Weight (g)",
+        datasets: [{
 
-        data: weights,
+          label: "Bin Weight (g)",
 
-        borderColor: "#55ffd9",
+          data: weights,
 
-        backgroundColor:
-          "rgba(85,255,217,0.2)",
+          borderColor: "#55ffd9",
 
-        tension: 0.4,
+          backgroundColor:
+            "rgba(85,255,217,0.2)",
 
-        fill: true,
+          tension: 0.4,
 
-        borderWidth: 3,
+          fill: true,
 
-        pointBackgroundColor:
-          "#55ffd9"
+          borderWidth: 3,
 
-      }]
+          pointBackgroundColor:
+            "#55ffd9"
 
-    },
-
-    options: {
-
-      responsive: true,
-
-      plugins: {
-
-        legend: {
-
-          labels: {
-            color: "white"
-          }
-
-        }
+        }]
 
       },
 
-      scales: {
+      options: {
 
-        x: {
+        responsive: true,
 
-          ticks: {
-            color: "white"
-          },
+        plugins: {
 
-          grid: {
-            color:
-              "rgba(255,255,255,0.1)"
+          legend: {
+
+            labels: {
+              color: "white"
+            }
+
           }
 
         },
 
-        y: {
+        scales: {
 
-          ticks: {
-            color: "white"
+          x: {
+
+            ticks: {
+              color: "white"
+            },
+
+            grid: {
+              color:
+                "rgba(255,255,255,0.1)"
+            }
+
           },
 
-          grid: {
-            color:
-              "rgba(255,255,255,0.1)"
+          y: {
+
+            ticks: {
+              color: "white"
+            },
+
+            grid: {
+              color:
+                "rgba(255,255,255,0.1)"
+            }
+
           }
 
         }
 
       }
 
-    }
+    });
 
-  });
+    /* =========================
+       MAP
+    ========================= */
 
-  /* =========================
-     MAP
-  ========================= */
-
-  const map = L.map("map").setView(
-    [
-      latest.location.lat,
-      latest.location.lng
-    ],
-    13
-  );
-
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      attribution: "OpenStreetMap"
-    }
-  ).addTo(map);
-
-  data.forEach(item => {
-
-    L.marker([
-      item.location.lat,
-      item.location.lng
-    ])
-    .addTo(map)
-    .bindPopup(
-      "Weight: " +
-      item.binWeight +
-      " g"
+    const map = L.map("map").setView(
+      [
+        latest.location.lat,
+        latest.location.lng
+      ],
+      13
     );
 
-  });
+    L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        attribution: "OpenStreetMap"
+      }
+    ).addTo(map);
 
-}
+    data.forEach(item => {
 
-/* =========================
-   CUSTOM ALERT
-========================= */
+      L.marker([
+        item.location.lat,
+        item.location.lng
+      ])
+      .addTo(map)
+      .bindPopup(
+        "Weight: " +
+        item.binWeight +
+        " g"
+      );
 
-function showAlert(message){
+    });
 
-  document.getElementById("customAlert")
-    .style.display = "flex";
+  } catch (err) {
 
-  document.getElementById("alertText")
-    .innerText = message;
-
-}
-
-function closeAlert(){
-
-  document.getElementById("customAlert")
-    .style.display = "none";
-
-}
-
-/* =========================
-   SUCCESS NOTIFICATION
-========================= */
-
-function showSuccess(message){
-
-  const notification =
-    document.getElementById(
-      "successNotification"
+    showAlert(
+      "Unable to load sensor data"
     );
 
-  notification.innerText = message;
-
-  notification.style.display = "block";
-
-  setTimeout(() => {
-
-    notification.style.display = "none";
-
-  }, 3000);
+  }
 
 }
