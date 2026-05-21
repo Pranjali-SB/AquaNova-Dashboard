@@ -56,7 +56,18 @@ auth.onAuthStateChanged(async (user) => {
         }
       );
 
-      if (!response.ok) return;
+      if (!response.ok) {
+
+        const err =
+          await response.json();
+
+        showAlert(err.message);
+
+        await auth.signOut();
+
+        return;
+
+      }
 
       const data =
         await response.json();
@@ -70,6 +81,10 @@ auth.onAuthStateChanged(async (user) => {
 
       console.error(err);
 
+      showAlert(
+        "Unable to connect to server"
+      );
+
     }
 
   } else {
@@ -77,6 +92,10 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById(
       "loginSection"
     ).style.display = "flex";
+
+    document.getElementById(
+      "dashboard"
+    ).style.display = "none";
 
   }
 
@@ -90,18 +109,12 @@ document
   .getElementById("googleLogin")
   .addEventListener("click", async () => {
 
-    console.log("button clicked");
-
     try {
 
       const result =
         await auth.signInWithPopup(provider);
 
       const user = result.user;
-
-      console.log(
-        "Google login success"
-      );
 
       const response = await fetch(
         `${API_URL}/api/auth/google-login`,
@@ -125,6 +138,8 @@ document
           await response.json();
 
         showAlert(err.message);
+
+        await auth.signOut();
 
         return;
 
@@ -181,6 +196,12 @@ function showDashboard(name, role) {
       "adminPanel"
     ).style.display = "block";
 
+  } else {
+
+    document.getElementById(
+      "adminPanel"
+    ).style.display = "none";
+
   }
 
   loadSensorData();
@@ -204,6 +225,9 @@ document
 /* =========================
    SENSOR DATA
 ========================= */
+
+let chartInstance = null;
+let mapInstance = null;
 
 async function loadSensorData() {
 
@@ -261,95 +285,108 @@ async function loadSensorData() {
         "weightChart"
       );
 
-    new Chart(ctx, {
+    if (chartInstance) {
 
-      type: "line",
+      chartInstance.destroy();
 
-      data: {
+    }
 
-        labels,
+    chartInstance =
+      new Chart(ctx, {
 
-        datasets: [{
+        type: "line",
 
-          label:
-            "Bin Weight (g)",
+        data: {
 
-          data: weights,
+          labels,
 
-          borderColor:
-            "#55ffd9",
+          datasets: [{
 
-          backgroundColor:
-            "rgba(85,255,217,0.2)",
+            label:
+              "Bin Weight (g)",
 
-          tension: 0.4,
+            data: weights,
 
-          fill: true,
+            borderColor:
+              "#55ffd9",
 
-          borderWidth: 3,
+            backgroundColor:
+              "rgba(85,255,217,0.2)",
 
-          pointBackgroundColor:
-            "#55ffd9"
+            tension: 0.4,
 
-        }]
+            fill: true,
 
-      },
+            borderWidth: 3,
 
-      options: {
+            pointBackgroundColor:
+              "#55ffd9"
 
-        responsive: true,
-
-        plugins: {
-
-          legend: {
-
-            labels: {
-              color: "white"
-            }
-
-          }
+          }]
 
         },
 
-        scales: {
+        options: {
 
-          x: {
+          responsive: true,
 
-            ticks: {
-              color: "white"
-            },
+          plugins: {
 
-            grid: {
-              color:
-                "rgba(255,255,255,0.1)"
+            legend: {
+
+              labels: {
+                color: "white"
+              }
+
             }
 
           },
 
-          y: {
+          scales: {
 
-            ticks: {
-              color: "white"
+            x: {
+
+              ticks: {
+                color: "white"
+              },
+
+              grid: {
+                color:
+                  "rgba(255,255,255,0.1)"
+              }
+
             },
 
-            grid: {
-              color:
-                "rgba(255,255,255,0.1)"
+            y: {
+
+              ticks: {
+                color: "white"
+              },
+
+              grid: {
+                color:
+                  "rgba(255,255,255,0.1)"
+              }
+
             }
 
           }
 
         }
 
-      }
-
-    });
+      });
 
     /* =========================
        MAP
     ========================= */
 
-    const map =
+    if (mapInstance) {
+
+      mapInstance.remove();
+
+    }
+
+    mapInstance =
       L.map("map").setView(
         [
           latest.location.lat,
@@ -364,7 +401,7 @@ async function loadSensorData() {
         attribution:
           "OpenStreetMap"
       }
-    ).addTo(map);
+    ).addTo(mapInstance);
 
     data.forEach(item => {
 
@@ -372,7 +409,7 @@ async function loadSensorData() {
         item.location.lat,
         item.location.lng
       ])
-      .addTo(map)
+      .addTo(mapInstance)
       .bindPopup(
         "Weight: " +
         item.binWeight +
