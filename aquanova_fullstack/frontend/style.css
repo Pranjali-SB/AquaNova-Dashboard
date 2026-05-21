@@ -325,3 +325,11 @@ canvas{
   }
 
 }
+
+.activeStatus{
+  color: #55ff99;
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+  text-align: center;
+}

@@ -248,10 +248,41 @@ async function loadSensorData() {
 
     if (data.length === 0) return;
 
+    document.getElementById(
+      "deviceStatus"
+    ).innerText = "● Active";
+
+    document.getElementById(
+      "deviceStatus"
+    ).style.color = "#55ff99";
+
     const latest = data[0];
 
     /* =========================
-       BIN WEIGHT
+       BIN WEIGHT VALIDATION
+    ========================= */
+
+    if (
+      latest.binWeight === null ||
+      latest.binWeight === undefined ||
+      isNaN(latest.binWeight) ||
+      latest.binWeight < 0
+    ) {
+
+      showAlert(
+        "Invalid Sensor Data Detected"
+      );
+
+      document.getElementById(
+        "binWeight"
+      ).innerText = "Invalid Data";
+
+      return;
+
+    }
+
+    /* =========================
+       BIN WEIGHT DISPLAY
     ========================= */
 
     document.getElementById(
@@ -293,13 +324,21 @@ async function loadSensorData() {
        CHART
     ========================= */
 
+    const validData =
+      data.filter(item =>
+        item.binWeight !== null &&
+        item.binWeight !== undefined &&
+        !isNaN(item.binWeight) &&
+        item.binWeight >= 0
+      );
+
     const weights =
-      data.map(item =>
+      validData.map(item =>
         item.binWeight
       ).reverse();
 
     const labels =
-      data.map((item, index) =>
+      validData.map((item, index) =>
         "Reading " +
         (index + 1)
       ).reverse();
@@ -404,6 +443,8 @@ async function loadSensorData() {
 
             y: {
 
+              beginAtZero: true,
+
               ticks: {
                 color: "white"
               },
@@ -448,7 +489,7 @@ async function loadSensorData() {
       }
     ).addTo(mapInstance);
 
-    data.forEach(item => {
+    validData.forEach(item => {
 
       L.marker([
         item.location.lat,
@@ -466,6 +507,14 @@ async function loadSensorData() {
   } catch (err) {
 
     console.error(err);
+
+    document.getElementById(
+      "deviceStatus"
+    ).innerText = "● Offline";
+
+    document.getElementById(
+      "deviceStatus"
+    ).style.color = "red";
 
     showAlert(
       "Unable to load sensor data"
