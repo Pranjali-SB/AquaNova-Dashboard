@@ -33,6 +33,51 @@ const API_URL =
   "https://aquanova-dashboard.onrender.com";
 
 /* =========================
+   KEEP USER LOGGED IN
+========================= */
+
+auth.onAuthStateChanged(async (user) => {
+
+  if (user) {
+
+    try {
+
+      const response = await fetch(
+        `${API_URL}/api/auth/google-login`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            name: user.displayName,
+            email: user.email
+          })
+        }
+      );
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      showDashboard(
+        user.displayName,
+        data.role
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+    }
+
+  }
+
+});
+
+/* =========================
    GOOGLE LOGIN
 ========================= */
 
@@ -69,7 +114,8 @@ document
 
       if (!response.ok) {
 
-        const err = await response.json();
+        const err =
+          await response.json();
 
         showAlert(err.message);
 
@@ -77,7 +123,8 @@ document
 
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       showDashboard(
         user.displayName,
@@ -118,7 +165,8 @@ function showDashboard(name, role) {
 
   document.getElementById(
     "role"
-  ).innerText = "Role: " + role;
+  ).innerText =
+    "Role: " + role;
 
   if (role === "admin") {
 
@@ -158,7 +206,8 @@ async function loadSensorData() {
       `${API_URL}/api/sensor-data`
     );
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
     if (data.length === 0) return;
 
@@ -196,7 +245,8 @@ async function loadSensorData() {
 
     const labels =
       data.map((item, index) =>
-        "Reading " + (index + 1)
+        "Reading " +
+        (index + 1)
       ).reverse();
 
     const ctx =
@@ -214,11 +264,13 @@ async function loadSensorData() {
 
         datasets: [{
 
-          label: "Bin Weight (g)",
+          label:
+            "Bin Weight (g)",
 
           data: weights,
 
-          borderColor: "#55ffd9",
+          borderColor:
+            "#55ffd9",
 
           backgroundColor:
             "rgba(85,255,217,0.2)",
@@ -290,18 +342,20 @@ async function loadSensorData() {
        MAP
     ========================= */
 
-    const map = L.map("map").setView(
-      [
-        latest.location.lat,
-        latest.location.lng
-      ],
-      13
-    );
+    const map =
+      L.map("map").setView(
+        [
+          latest.location.lat,
+          latest.location.lng
+        ],
+        13
+      );
 
     L.tileLayer(
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
-        attribution: "OpenStreetMap"
+        attribution:
+          "OpenStreetMap"
       }
     ).addTo(map);
 
@@ -367,7 +421,8 @@ function showSuccess(message){
       "successNotification"
     );
 
-  notification.innerText = message;
+  notification.innerText =
+    message;
 
   notification.style.display =
     "block";
