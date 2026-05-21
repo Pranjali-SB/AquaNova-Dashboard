@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>AquaNova Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- LEAFLET CSS -->
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+</head>
+
+<body>
+
+  <!-- LOGIN SECTION -->
+
+  <div class="container" id="loginSection">
+
+    <div class="loginBox">
+
+      <h1 class="mainTitle">
+        AquaNova
+      </h1>
+
+      <h2 class="subTitle">
+        AN INTELLIGENT RIVER CLEANING SYSTEM
+      </h2>
+
+      <!-- GOOGLE LOGIN -->
+
+      <button id="googleLogin">
+        Login with Google
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- DASHBOARD -->
+
+  <div id="dashboard" style="display:none;">
+
+    <div class="mainLayout">
+
+      <!-- SIDEBAR -->
+
+      <div class="sidebar">
+
+        <h1 class="logo">
+          AquaNova
+        </h1>
+
+        <!-- DEVICE -->
+
+        <button class="sideBtn">
+          AquaNova 1
+        </button>
+
+        <!-- ADMIN PANEL -->
+
+        <div id="adminPanel" style="display:none;">
+
+          <h3>
+            Admin Panel
+          </h3>
+
+          <p>
+            Logged in as Admin
+          </p>
+
+        </div>
+
+        <!-- LOGOUT -->
+
+        <button id="logoutBtn" class="logoutBtn">
+          Logout
+        </button>
+
+      </div>
+
+      <!-- MAIN CONTENT -->
+
+      <div class="content">
+
+        <!-- TOP CARD -->
+
+        <div class="topCard">
+
+          <h1>
+            AquaNova Dashboard
+          </h1>
+
+          <h2>
+            Welcome
+            <span id="userName"></span>
+          </h2>
+
+          <p id="role"></p>
+
+        </div>
+
+        <!-- GRID -->
+
+        <div class="dashboardGrid">
+
+          <!-- MAP CARD -->
+
+          <div class="card">
+
+            <h2>
+              GPS Location
+            </h2>
+
+            <p id="gpsText">
+              Latitude: 19.0760 ,
+              Longitude: 72.8777
+            </p>
+
+            <div id="map"></div>
+
+          </div>
+
+          <!-- CHART CARD -->
+
+          <div class="card">
+
+            <h2>
+              Bin Fill Level
+            </h2>
+
+            <canvas id="weightChart"></canvas>
+
+            <div class="weightBox">
+
+              Latest Weight:
+
+              <span id="binWeight">
+                0 g
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- CUSTOM ALERT -->
+
+  <div id="customAlert" class="customAlert">
+
+    <div class="alertBox">
+
+      <p id="alertText"></p>
+
+      <button onclick="closeAlert()">
+        OK
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- FIREBASE -->
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <!-- CHART JS -->
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- LEAFLET JS -->
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
+
+  <!-- SUCCESS NOTIFICATION -->
+
+<div id="successNotification" class="successNotification">
+
+  Logged in Successfully
+
+</div>
+  <!-- SCRIPT -->
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>
