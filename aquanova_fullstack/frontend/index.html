@@ -8,8 +8,7 @@
   <link rel="stylesheet" href="style.css">
 
   <!-- LEAFLET CSS -->
-  <link rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
 </head>
 
@@ -102,6 +101,25 @@
 
         </div>
 
+        <!-- THRESHOLD ALERT -->
+
+        <div id="thresholdAlert" style="
+    display:none;
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:red;
+    color:white;
+    padding:20px;
+    border-radius:15px;
+    font-size:22px;
+    font-weight:bold;
+    z-index:9999;
+    box-shadow:0 0 20px red;
+  ">
+          ⚠ ALERT: Bin Level Exceeded Threshold!
+        </div>
+
         <!-- GRID -->
 
         <div class="dashboardGrid">
@@ -187,11 +205,11 @@
 
   <!-- SUCCESS NOTIFICATION -->
 
-<div id="successNotification" class="successNotification">
+  <div id="successNotification" class="successNotification">
 
-  Logged in Successfully
+    Logged in Successfully
 
-</div>
+  </div>
   <!-- SCRIPT -->
 
   <script src="script.js"></script>

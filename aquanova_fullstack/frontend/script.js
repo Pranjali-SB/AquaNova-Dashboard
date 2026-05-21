@@ -37,12 +37,6 @@ const API_URL =
 const THRESHOLD = 1;
 
 /* =========================
-   PREVENT MULTIPLE POPUPS
-========================= */
-
-let popupVisible = false;
-
-/* =========================
    KEEP USER LOGGED IN
 ========================= */
 
@@ -269,14 +263,17 @@ async function loadSensorData() {
        THRESHOLD ALERT
     ========================= */
 
-    if (
-      latest.binWeight > THRESHOLD &&
-      !popupVisible
-    ) {
+    if (latest.binWeight > THRESHOLD) {
 
-      showThresholdPopup(
-        "⚠ ALERT: Bin Level Exceeded Threshold!"
-      );
+      document.getElementById(
+        "thresholdAlert"
+      ).style.display = "block";
+
+    } else {
+
+      document.getElementById(
+        "thresholdAlert"
+      ).style.display = "none";
 
     }
 
@@ -334,15 +331,26 @@ async function loadSensorData() {
 
             data: weights,
 
+            segment: {
+
+              borderColor: ctx => {
+
+                const value =
+                  ctx.p1.parsed.y;
+
+                return value > THRESHOLD
+                  ? "red"
+                  : "#55ffd9";
+
+              }
+
+            },
+
             borderColor:
-              latest.binWeight > THRESHOLD
-                ? "red"
-                : "#55ffd9",
+              "#55ffd9",
 
             backgroundColor:
-              latest.binWeight > THRESHOLD
-                ? "rgba(255,0,0,0.2)"
-                : "rgba(85,255,217,0.2)",
+              "rgba(85,255,217,0.15)",
 
             tension: 0.4,
 
@@ -351,9 +359,13 @@ async function loadSensorData() {
             borderWidth: 3,
 
             pointBackgroundColor:
-              latest.binWeight > THRESHOLD
-                ? "red"
-                : "#55ffd9"
+              weights.map(weight =>
+                weight > THRESHOLD
+                  ? "red"
+                  : "#55ffd9"
+              ),
+
+            pointRadius: 5
 
           }]
 
@@ -480,44 +492,6 @@ function showAlert(message){
   document.getElementById(
     "alertText"
   ).innerText = message;
-
-}
-
-/* =========================
-   THRESHOLD POPUP ALERT
-========================= */
-
-function showThresholdPopup(message){
-
-  popupVisible = true;
-
-  const popup =
-    document.createElement("div");
-
-  popup.innerText = message;
-
-  popup.style.position = "fixed";
-  popup.style.top = "30px";
-  popup.style.right = "30px";
-  popup.style.background = "red";
-  popup.style.color = "white";
-  popup.style.padding = "20px";
-  popup.style.fontSize = "18px";
-  popup.style.fontWeight = "bold";
-  popup.style.borderRadius = "12px";
-  popup.style.zIndex = "9999";
-  popup.style.boxShadow =
-    "0 0 20px rgba(255,0,0,0.8)";
-
-  document.body.appendChild(popup);
-
-  setTimeout(() => {
-
-    popup.remove();
-
-    popupVisible = false;
-
-  }, 5000);
 
 }
 
