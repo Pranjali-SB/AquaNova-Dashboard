@@ -36,62 +36,24 @@ const API_URL =
 
 const THRESHOLD = 1;
 
+
 /* =========================
    KEEP USER LOGGED IN
 ========================= */
 
-auth.onAuthStateChanged(async (user) => {
+auth.onAuthStateChanged((user) => {
 
   if (user) {
 
-    try {
+    document.getElementById(
+      "loginSection"
+    ).style.display = "none";
 
-      const response = await fetch(
-        `${API_URL}/api/auth/google-login`,
-        {
-          method: "POST",
+    document.getElementById(
+      "dashboard"
+    ).style.display = "block";
 
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify({
-            name: user.displayName,
-            email: user.email
-          })
-        }
-      );
-
-      if (!response.ok) {
-
-        const err =
-          await response.json();
-
-        showAlert(err.message);
-
-        await auth.signOut();
-
-        return;
-
-      }
-
-      const data =
-        await response.json();
-
-      showDashboard(
-        user.displayName,
-        data.role
-      );
-
-    } catch (err) {
-
-      console.error(err);
-
-      showAlert(
-        "Unable to connect to server"
-      );
-
-    }
+    loadSensorData();
 
   } else {
 
