@@ -41,19 +41,97 @@ const THRESHOLD = 1;
    KEEP USER LOGGED IN
 ========================= */
 
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
 
   if (user) {
 
-    document.getElementById(
-      "loginSection"
-    ).style.display = "none";
+    try {
 
-    document.getElementById(
-      "dashboard"
-    ).style.display = "block";
+      document.getElementById(
+        "loginSection"
+      ).style.display = "none";
 
-    loadSensorData();
+      document.getElementById(
+        "dashboard"
+      ).style.display = "block";
+
+      const response = await fetch(
+        `${API_URL}/api/auth/google-login`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            name: user.displayName,
+            email: user.email
+          })
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+
+        showAlert(
+          data.message || "Login failed"
+        );
+
+        await auth.signOut();
+
+        return;
+
+      }
+
+      /* =========================
+         RESTORE USER DETAILS
+      ========================= */
+
+      document.getElementById(
+        "userName"
+      ).innerText =
+        user.displayName || "User";
+
+      document.getElementById(
+        "role"
+      ).innerText =
+        "Role: " + data.role;
+
+      /* =========================
+         ADMIN PANEL
+      ========================= */
+
+      if (
+        data.role &&
+        data.role.toLowerCase() === "admin"
+      ) {
+
+        document.getElementById(
+          "adminPanel"
+        ).style.display = "block";
+
+      } else {
+
+        document.getElementById(
+          "adminPanel"
+        ).style.display = "none";
+
+      }
+
+      loadSensorData();
+
+    } catch (err) {
+
+      console.error(err);
+
+      showAlert(
+        "Unable to connect to server"
+      );
+
+    }
 
   } else {
 
@@ -68,7 +146,6 @@ auth.onAuthStateChanged((user) => {
   }
 
 });
-
 /* =========================
    GOOGLE LOGIN
 ========================= */
