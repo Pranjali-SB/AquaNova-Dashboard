@@ -115,6 +115,7 @@ document
 
       const data =
         await response.json();
+        console.log(data);
 
       showDashboard(
         user.displayName,
