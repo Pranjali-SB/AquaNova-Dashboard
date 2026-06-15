@@ -331,22 +331,41 @@ async function loadSensorData() {
       latest.binWeight + " g";
 
     /* =========================
-       THRESHOLD ALERT
-    ========================= */
+   THRESHOLD ALERT
+========================= */
 
-    if (latest.binWeight > THRESHOLD) {
+const deviceAlertIcon =
+  document.getElementById(
+    "deviceAlertIcon"
+  );
 
-      document.getElementById(
-        "thresholdAlert"
-      ).style.display = "block";
+if (latest.binWeight > THRESHOLD) {
 
-    } else {
+  document.getElementById(
+    "thresholdAlert"
+  ).style.display = "block";
 
-      document.getElementById(
-        "thresholdAlert"
-      ).style.display = "none";
+  if (deviceAlertIcon) {
 
-    }
+    deviceAlertIcon.style.display =
+      "inline";
+
+  }
+
+} else {
+
+  document.getElementById(
+    "thresholdAlert"
+  ).style.display = "none";
+
+  if (deviceAlertIcon) {
+
+    deviceAlertIcon.style.display =
+      "none";
+
+  }
+
+}
 
     /* =========================
        GPS TEXT

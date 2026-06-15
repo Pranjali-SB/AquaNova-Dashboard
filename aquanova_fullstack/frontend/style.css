@@ -333,3 +333,40 @@ canvas{
   margin-top: 10px;
   text-align: center;
 }
+
+/* =========================
+   DEVICE ALERT ICON
+========================= */
+
+.deviceAlertIcon{
+  display:none;
+  color:red;
+  font-size:25px;
+  font-weight:bold;
+  margin-left:10px;
+
+ text-shadow:
+    0 0 5px red,
+    0 0 10px red,
+    0 0 15px red;
+
+  animation:blinkAlert 1s infinite;
+}
+
+/* ALERT BLINK ANIMATION */
+
+@keyframes blinkAlert{
+
+  0%{
+    opacity:1;
+  }
+
+  50%{
+    opacity:0.2;
+  }
+
+  100%{
+    opacity:1;
+  }
+
+}
