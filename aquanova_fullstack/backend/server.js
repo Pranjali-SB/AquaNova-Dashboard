@@ -8,9 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.log(err));
 
 /* =========================
    USER SCHEMA
@@ -21,8 +22,8 @@ const userSchema = new mongoose.Schema({
   email: String,
   role: {
     type: String,
-    default: "user"
-  }
+    default: "user",
+  },
 });
 
 const User = mongoose.model("User", userSchema);
@@ -32,19 +33,17 @@ const User = mongoose.model("User", userSchema);
 ========================= */
 
 const sensorSchema = new mongoose.Schema({
-
   binWeight: Number,
 
   location: {
     lat: Number,
-    lng: Number
+    lng: Number,
   },
 
   createdAt: {
     type: Date,
-    default: Date.now
-  }
-
+    default: Date.now,
+  },
 });
 
 const SensorData = mongoose.model("SensorData", sensorSchema);
@@ -54,11 +53,9 @@ const SensorData = mongoose.model("SensorData", sensorSchema);
 ========================= */
 
 const allowedEmails = [
-
   "pranjali.bidwe2904@gmail.com",
   "aaryaashtekar111@gmail.com",
-  "chetnabendale04@gmail.com"
-
+  "chetnabendale04@gmail.com",
 ];
 
 /* =========================
@@ -66,9 +63,7 @@ const allowedEmails = [
 ========================= */
 
 app.post("/api/auth/google-login", async (req, res) => {
-
   try {
-
     const { name, email } = req.body;
 
     /* =========================
@@ -76,41 +71,28 @@ app.post("/api/auth/google-login", async (req, res) => {
     ========================= */
 
     if (!allowedEmails.includes(email)) {
-
       return res.status(403).json({
-        message: "Unauthorized User"
+        message: "Unauthorized User",
       });
-
     }
 
     let user = await User.findOne({ email });
 
     if (!user) {
-
       user = await User.create({
-
         name,
         email,
 
-        role:
-          email === process.env.ADMIN_EMAIL
-            ? "admin"
-            : "user"
-
+        role: email === process.env.ADMIN_EMAIL ? "admin" : "user",
       });
-
     }
 
     res.json(user);
-
   } catch (err) {
-
     res.status(500).json({
-      message: "Server Error"
+      message: "Server Error",
     });
-
   }
-
 });
 
 /* =========================
@@ -118,32 +100,24 @@ app.post("/api/auth/google-login", async (req, res) => {
 ========================= */
 
 app.post("/api/sensor-data", async (req, res) => {
-
   try {
-
     const { binWeight, lat, lng } = req.body;
 
     const newData = await SensorData.create({
-
       binWeight,
 
       location: {
         lat,
-        lng
-      }
-
+        lng,
+      },
     });
 
     res.json(newData);
-
   } catch (err) {
-
     res.status(500).json({
-      message: "Error saving sensor data"
+      message: "Error saving sensor data",
     });
-
   }
-
 });
 
 /* =========================
@@ -151,40 +125,30 @@ app.post("/api/sensor-data", async (req, res) => {
 ========================= */
 
 app.get("/api/sensor-data", async (req, res) => {
-
   try {
+    const data = await SensorData.find().sort({ createdAt: -1 });
 
-    const data = await SensorData.find()
-      .sort({ createdAt: -1 });
-
-    const formattedData = data.map(item => ({
-
+    const formattedData = data.map((item) => ({
       ...item.toObject(),
 
-      formattedTime: new Date(item.createdAt)
-        .toLocaleString("en-IN", {
-          timeZone: "Asia/Kolkata",
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true
-        })
-
+      "Date and Time": new Date(item.createdAt).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      }),
     }));
 
     res.json(formattedData);
-
   } catch (err) {
-
     res.status(500).json({
-      message: "Error fetching sensor data"
+      message: "Error fetching sensor data",
     });
-
   }
-
 });
 
 /* =========================

@@ -197,8 +197,7 @@ async function loadSensorData() {
     document.getElementById("deviceStatus").style.color = "#55ff99";
 
     const latest = data[0];
-    document.getElementById("timeText").innerText =
-      "Time: " + latest.formattedTime;
+    document.getElementById("timeText").innerText = latest["Date and Time"];
     /* =========================
        BIN WEIGHT VALIDATION
     ========================= */
