@@ -370,3 +370,10 @@ canvas{
   }
 
 }
+
+#timeText{
+  color:#55ffd9;
+  font-size:16px;
+  margin-top:8px;
+  font-weight:bold;
+}
