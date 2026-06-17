@@ -189,14 +189,19 @@ async function loadSensorData() {
     const response = await fetch(`${API_URL}/api/sensor-data`);
 
     const data = await response.json();
+    /* =========================
+   LAST 20 READINGS ONLY
+========================= */
 
-    if (data.length === 0) return;
+    const recentData = data.slice(0, 20);
+
+    if (recentData.length === 0) return;
 
     document.getElementById("deviceStatus").innerText = "● Active";
 
     document.getElementById("deviceStatus").style.color = "#55ff99";
 
-    const latest = data[0];
+    const latest = recentData[0];
     document.getElementById("timeText").innerText = latest["Date and Time"];
     /* =========================
        BIN WEIGHT VALIDATION
@@ -255,7 +260,7 @@ async function loadSensorData() {
        CHART
     ========================= */
 
-    const validData = data.filter(
+    const validData = recentData.filter(
       (item) =>
         item.binWeight !== null &&
         item.binWeight !== undefined &&
@@ -263,11 +268,15 @@ async function loadSensorData() {
         item.binWeight >= 0,
     );
 
-    const weights = validData.map((item) => item.binWeight).reverse();
+    const weights = validData
+      .slice()
+      .reverse()
+      .map((item) => item.binWeight);
 
     const labels = validData
-      .map((item, index) => "Reading " + (index + 1))
-      .reverse();
+      .slice()
+      .reverse()
+      .map((item) => item["Date and Time"].split(", ")[1]);
 
     const ctx = document.getElementById("weightChart");
 
@@ -327,6 +336,16 @@ async function loadSensorData() {
 
         scales: {
           x: {
+            title: {
+              display: true,
+              text: "Time",
+              color: "#55ffd9",
+              font: {
+                size: 16,
+                weight: "bold",
+              },
+            },
+
             ticks: {
               color: "white",
             },
@@ -337,6 +356,16 @@ async function loadSensorData() {
           },
 
           y: {
+            title: {
+              display: true,
+              text: "Bin Weight (g)",
+              color: "#55ffd9",
+              font: {
+                size: 16,
+                weight: "bold",
+              },
+            },
+
             beginAtZero: true,
 
             ticks: {
