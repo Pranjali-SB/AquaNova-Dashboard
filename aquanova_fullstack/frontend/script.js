@@ -448,3 +448,17 @@ function showSuccess(message) {
     notification.style.display = "none";
   }, 3000);
 }
+/* =========================
+   AUTO REFRESH SENSOR DATA
+========================= */
+
+setInterval(() => {
+
+  if (
+    document.getElementById("dashboard").style.display === "block"
+  ) {
+    loadSensorData();
+  }
+
+}, 5000);
+
