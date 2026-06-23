@@ -26,7 +26,7 @@ const provider = new firebase.auth.GoogleAuthProvider();
    BACKEND URL
 ========================= */
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://aquanova-dashboard.onrender.com";
 
 /* =========================
    THRESHOLD VALUE
