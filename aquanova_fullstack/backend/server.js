@@ -267,26 +267,19 @@ app.post("/api/sensor-data", async (req, res) => {
 
 app.get("/api/sensor-data/:boatId", async (req, res) => {
   try {
-    const data = await SensorData.find({
-      boatId: req.params.boatId,
-    }).sort({
-      createdAt: -1,
-    });
+    const data = await SensorData.find().sort({ createdAt: -1 });
 
     const formattedData = data.map((item) => ({
       ...item.toObject(),
 
       "Date and Time": new Date(item.createdAt).toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
-
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
-
         hour12: true,
       }),
     }));
