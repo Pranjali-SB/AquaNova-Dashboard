@@ -52,19 +52,55 @@
           AquaNova
         </h1>
 
-        <!-- DEVICE -->
+        <!-- ADMIN ACTIONS -->
 
-        <button class="sideBtn" id="deviceBtn">
-          AquaNova 1
+        <div id="adminActions" style="display:none;">
 
-          <span id="deviceAlertIcon" class="deviceAlertIcon">
-            ⚠️
-          </span>
-        </button>
+          <!-- MANAGE BOATS -->
 
-        <p id="deviceStatus" class="activeStatus">
-          ● Active
-        </p>
+          <button class="adminBtn" onclick="toggleBoatMenu()">
+            🚤 Manage Boats
+          </button>
+
+          <div id="boatMenu" style="display:none;">
+
+            <button class="adminBtn" onclick="addBoat()">
+              ➕ Add Boat
+            </button>
+
+            <button class="adminBtn" onclick="removeBoat()">
+              🗑 Remove Boat
+            </button>
+
+          </div>
+
+          <!-- MANAGE USERS -->
+
+          <button class="adminBtn" onclick="toggleUserMenu()">
+            👤 Manage Users
+          </button>
+
+          <div id="userMenu" style="display:none;">
+
+            <button class="adminBtn" onclick="addUser()">
+              ➕ Add User
+            </button>
+
+            <button class="adminBtn" onclick="removeUser()">
+              🗑 Remove User
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- BOATS CONTAINER -->
+
+        <div id="boatsContainer">
+
+        </div>
+
+
 
 
         <!-- ADMIN PANEL -->
@@ -142,13 +178,12 @@
             </h2>
 
             <p id="gpsText">
-            <p id="timeText">
-              Time: --
+              GPS Signal Not Received.
+              Please keep AquaNova under open sky.
             </p>
 
-            <div id="map"></div>
-            Latitude: 19.0760 ,
-            Longitude: 72.8777
+            <p id="timeText">
+              Time: --
             </p>
 
             <div id="map"></div>

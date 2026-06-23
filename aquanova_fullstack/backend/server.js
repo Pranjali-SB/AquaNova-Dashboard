@@ -33,6 +33,11 @@ const User = mongoose.model("User", userSchema);
 ========================= */
 
 const sensorSchema = new mongoose.Schema({
+  boatId: {
+    type: String,
+    required: true,
+  },
+
   binWeight: Number,
 
   location: {
@@ -49,14 +54,161 @@ const sensorSchema = new mongoose.Schema({
 const SensorData = mongoose.model("SensorData", sensorSchema);
 
 /* =========================
-   ALLOWED EMAILS
+   BOAT SCHEMA
 ========================= */
 
-const allowedEmails = [
-  "pranjali.bidwe2904@gmail.com",
-  "aaryaashtekar111@gmail.com",
-  "chetnabendale04@gmail.com",
-];
+const boatSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+});
+
+const Boat = mongoose.model("Boat", boatSchema);
+
+/* =========================
+   ADD BOAT API
+========================= */
+
+app.post("/api/boats", async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    const boat = await Boat.create({
+      name,
+    });
+
+    await SensorData.create({
+      boatId: boat._id.toString(),
+
+      binWeight: 0,
+
+      location: {
+        lat: 0,
+        lng: 0,
+      },
+    });
+
+    res.json(boat);
+  } catch (err) {
+    res.status(500).json({
+      message: "Error adding boat",
+    });
+  }
+});
+
+/* =========================
+   GET BOATS API
+========================= */
+
+app.get("/api/boats", async (req, res) => {
+  try {
+    const boats = await Boat.find();
+
+    res.json(boats);
+  } catch (err) {
+    res.status(500).json({
+      message: "Error fetching boats",
+    });
+  }
+});
+
+/* =========================
+   DELETE BOAT API
+========================= */
+
+app.delete("/api/boats/:id", async (req, res) => {
+  try {
+    await Boat.findByIdAndDelete(req.params.id);
+
+    await SensorData.deleteMany({
+      boatId: req.params.id,
+    });
+
+    res.json({
+      message: "Boat Deleted",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error deleting boat",
+    });
+  }
+});
+
+/* =========================
+   ADD USER API
+========================= */
+
+app.post("/api/users", async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    const user = await User.create({
+      name,
+
+      email,
+
+      role: email === process.env.ADMIN_EMAIL ? "admin" : "user",
+    });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({
+      message: "Error adding user",
+    });
+  }
+});
+
+/* =========================
+   DELETE USER API
+========================= */
+
+app.delete("/api/users/:id", async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+
+    res.json({
+      message: "User Deleted",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error deleting user",
+    });
+  }
+});
+
+/* =========================
+   DELETE USER BY EMAIL
+========================= */
+
+app.delete("/api/users/email/:email", async (req, res) => {
+  try {
+    const user = await User.findOneAndDelete({
+      email: req.params.email,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User Not Found",
+      });
+    }
+
+    res.json({
+      message: "User Deleted Successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error deleting user",
+    });
+  }
+});
 
 /* =========================
    GOOGLE LOGIN API
@@ -66,24 +218,11 @@ app.post("/api/auth/google-login", async (req, res) => {
   try {
     const { name, email } = req.body;
 
-    /* =========================
-       CHECK AUTHORIZED USERS
-    ========================= */
-
-    if (!allowedEmails.includes(email)) {
-      return res.status(403).json({
-        message: "Unauthorized User",
-      });
-    }
-
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = await User.create({
-        name,
-        email,
-
-        role: email === process.env.ADMIN_EMAIL ? "admin" : "user",
+      return res.status(403).json({
+        message: "User Not Authorized",
       });
     }
 
@@ -101,9 +240,11 @@ app.post("/api/auth/google-login", async (req, res) => {
 
 app.post("/api/sensor-data", async (req, res) => {
   try {
-    const { binWeight, lat, lng } = req.body;
+    const { boatId, binWeight, lat, lng } = req.body;
 
     const newData = await SensorData.create({
+      boatId,
+
       binWeight,
 
       location: {
@@ -121,24 +262,31 @@ app.post("/api/sensor-data", async (req, res) => {
 });
 
 /* =========================
-   GET SENSOR DATA API
+   GET SENSOR DATA BY BOAT
 ========================= */
 
-app.get("/api/sensor-data", async (req, res) => {
+app.get("/api/sensor-data/:boatId", async (req, res) => {
   try {
-    const data = await SensorData.find().sort({ createdAt: -1 });
+    const data = await SensorData.find({
+      boatId: req.params.boatId,
+    }).sort({
+      createdAt: -1,
+    });
 
     const formattedData = data.map((item) => ({
       ...item.toObject(),
 
       "Date and Time": new Date(item.createdAt).toLocaleString("en-IN", {
         timeZone: "Asia/Kolkata",
+
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
+
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
+
         hour12: true,
       }),
     }));
