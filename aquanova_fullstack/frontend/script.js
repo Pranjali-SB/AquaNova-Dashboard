@@ -364,12 +364,9 @@ async function loadSensorData() {
           },
 
           y: {
-            min: 0,
-            max: 5,
-
             title: {
               display: true,
-              text: "Bin Weight (kg)",
+              text: "Bin Weight (g)",
               color: "#55ffd9",
               font: {
                 size: 16,
@@ -377,8 +374,9 @@ async function loadSensorData() {
               },
             },
 
+            beginAtZero: true,
+
             ticks: {
-              stepSize: 1,
               color: "white",
             },
 
@@ -509,21 +507,24 @@ function renderBoats() {
   customBoats.forEach((boatName) => {
     container.innerHTML += `
 
-      <button class="boatBtn">
+    <button class="boatBtn">
 
-        <div class="boatTop">
+      <div class="boatTop">
 
-          <span>${boatName}</span>
+        <span>${boatName}</span>
 
-        </div>
+      </div>
 
-        <div class="boatStatus">
-          ● Active
-        </div>
+      <div
+        class="boatStatus"
+        style="color:red;"
+      >
+        ● Offline
+      </div>
 
-      </button>
+    </button>
 
-    `;
+  `;
   });
 }
 
