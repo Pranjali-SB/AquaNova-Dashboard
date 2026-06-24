@@ -172,7 +172,7 @@ function showDashboard(name, role) {
     document.getElementById("adminActions").style.display = "none";
   }
 
-  renderBoats(); 
+  renderBoats();
 }
 
 /* =========================
@@ -191,15 +191,11 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
 
 let chartInstance = null;
 let mapInstance = null;
-let customBoats =
-  JSON.parse(localStorage.getItem("customBoats")) || [];
+let customBoats = JSON.parse(localStorage.getItem("customBoats")) || [];
 
 async function loadSensorData() {
-  
   try {
-    const response = await fetch(
-  `${API_URL}/api/sensor-data`
-);
+    const response = await fetch(`${API_URL}/api/sensor-data`);
     const data = await response.json();
     /* =========================
    LAST 20 READINGS ONLY
@@ -243,18 +239,15 @@ async function loadSensorData() {
     } else {
       document.getElementById("thresholdAlert").style.display = "none";
     }
-const currentAlert =
-  document.getElementById("deviceAlertIcon");
+    const currentAlert = document.getElementById("deviceAlertIcon");
 
-if (currentAlert) {
-
-  if (latest.binWeight > THRESHOLD) {
-    currentAlert.style.display = "inline";
-  } else {
-    currentAlert.style.display = "none";
-  }
-
-}
+    if (currentAlert) {
+      if (latest.binWeight > THRESHOLD) {
+        currentAlert.style.display = "inline";
+      } else {
+        currentAlert.style.display = "none";
+      }
+    }
 
     /* =========================
        GPS TEXT
@@ -371,9 +364,12 @@ if (currentAlert) {
           },
 
           y: {
+            min: 0,
+            max: 5,
+
             title: {
               display: true,
-              text: "Bin Weight (g)",
+              text: "Bin Weight (kg)",
               color: "#55ffd9",
               font: {
                 size: 16,
@@ -381,9 +377,8 @@ if (currentAlert) {
               },
             },
 
-            beginAtZero: true,
-
             ticks: {
+              stepSize: 1,
               color: "white",
             },
 
@@ -484,9 +479,7 @@ setInterval(() => {
 }, 5000);
 
 function renderBoats() {
-
-  const container =
-    document.getElementById("boatsContainer");
+  const container = document.getElementById("boatsContainer");
 
   container.innerHTML = `
 
@@ -514,7 +507,6 @@ function renderBoats() {
   `;
 
   customBoats.forEach((boatName) => {
-
     container.innerHTML += `
 
       <button class="boatBtn">
@@ -532,9 +524,7 @@ function renderBoats() {
       </button>
 
     `;
-
   });
-
 }
 
 function toggleBoatMenu() {
@@ -562,18 +552,13 @@ function toggleUserMenu() {
 ========================= */
 
 function addBoat() {
-
-  const boatName =
-    prompt("Enter Boat Name");
+  const boatName = prompt("Enter Boat Name");
 
   if (!boatName) return;
 
   customBoats.push(boatName);
 
-  localStorage.setItem(
-    "customBoats",
-    JSON.stringify(customBoats)
-  );
+  localStorage.setItem("customBoats", JSON.stringify(customBoats));
 
   renderBoats();
 }
@@ -583,23 +568,15 @@ function addBoat() {
 ========================= */
 
 function removeBoat() {
-
-  const boatName =
-    prompt("Enter Boat Name");
+  const boatName = prompt("Enter Boat Name");
 
   if (!boatName) return;
 
-  customBoats =
-    customBoats.filter(
-      (boat) =>
-        boat.toLowerCase() !==
-        boatName.toLowerCase()
-    );
-
-  localStorage.setItem(
-    "customBoats",
-    JSON.stringify(customBoats)
+  customBoats = customBoats.filter(
+    (boat) => boat.toLowerCase() !== boatName.toLowerCase(),
   );
+
+  localStorage.setItem("customBoats", JSON.stringify(customBoats));
 
   renderBoats();
 }
