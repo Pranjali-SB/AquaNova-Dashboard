@@ -33,11 +33,6 @@ const User = mongoose.model("User", userSchema);
 ========================= */
 
 const sensorSchema = new mongoose.Schema({
-  boatId: {
-    type: String,
-    required: true,
-  },
-
   binWeight: Number,
 
   location: {
@@ -52,88 +47,6 @@ const sensorSchema = new mongoose.Schema({
 });
 
 const SensorData = mongoose.model("SensorData", sensorSchema);
-
-/* =========================
-   BOAT SCHEMA
-========================= */
-
-const boatSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-});
-
-const Boat = mongoose.model("Boat", boatSchema);
-
-/* =========================
-   ADD BOAT API
-========================= */
-
-app.post("/api/boats", async (req, res) => {
-  try {
-    const { name } = req.body;
-
-    const boat = await Boat.create({
-      name,
-    });
-
-    await SensorData.create({
-      boatId: boat._id.toString(),
-
-      binWeight: 0,
-
-      location: {
-        lat: 0,
-        lng: 0,
-      },
-    });
-
-    res.json(boat);
-  } catch (err) {
-    res.status(500).json({
-      message: "Error adding boat",
-    });
-  }
-});
-
-/* =========================
-   GET BOATS API
-========================= */
-
-app.get("/api/boats", async (req, res) => {
-  try {
-    const boats = await Boat.find();
-
-    res.json(boats);
-  } catch (err) {
-    res.status(500).json({
-      message: "Error fetching boats",
-    });
-  }
-});
-
-/* =========================
-   DELETE BOAT API
-========================= */
-
-app.delete("/api/boats/:id", async (req, res) => {
-  try {
-    await Boat.findByIdAndDelete(req.params.id);
-
-    await SensorData.deleteMany({
-      boatId: req.params.id,
-    });
-
-    res.json({
-      message: "Boat Deleted",
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: "Error deleting boat",
-    });
-  }
-});
 
 /* =========================
    ADD USER API
@@ -237,14 +150,11 @@ app.post("/api/auth/google-login", async (req, res) => {
 /* =========================
    SAVE SENSOR DATA API
 ========================= */
-
 app.post("/api/sensor-data", async (req, res) => {
   try {
-    const { boatId, binWeight, lat, lng } = req.body;
+    const { binWeight, lat, lng } = req.body;
 
     const newData = await SensorData.create({
-      boatId,
-
       binWeight,
 
       location: {
@@ -262,13 +172,12 @@ app.post("/api/sensor-data", async (req, res) => {
 });
 
 /* =========================
-   GET SENSOR DATA BY BOAT
+   GET SENSOR DATA 
 ========================= */
 
-app.get("/api/sensor-data/:boatId", async (req, res) => {
+app.get("/api/sensor-data", async (req, res) => {
   try {
-    const data = await SensorData.find().sort({ createdAt: -1 });
-
+    const data = await SensorData.find().sort({ createdAt: -1 }).limit(20);
     const formattedData = data.map((item) => ({
       ...item.toObject(),
 

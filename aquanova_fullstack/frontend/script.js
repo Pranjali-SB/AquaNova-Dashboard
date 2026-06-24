@@ -90,7 +90,7 @@ auth.onAuthStateChanged(async (user) => {
 
         document.getElementById("adminActions").style.display = "none";
       }
-      loadBoats();
+      renderBoats();
       loadSensorData();
     } catch (err) {
       console.error(err);
@@ -172,7 +172,7 @@ function showDashboard(name, role) {
     document.getElementById("adminActions").style.display = "none";
   }
 
-  loadBoats(); // ← ADD THIS LINE
+  renderBoats(); 
 }
 
 /* =========================
@@ -191,17 +191,15 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
 
 let chartInstance = null;
 let mapInstance = null;
-let selectedBoat = null;
+let customBoats =
+  JSON.parse(localStorage.getItem("customBoats")) || [];
 
 async function loadSensorData() {
-  // ADD THIS PART
-  if (!selectedBoat) {
-    return;
-  }
-
+  
   try {
-    const response = await fetch(`${API_URL}/api/sensor-data/${selectedBoat}`);
-
+    const response = await fetch(
+  `${API_URL}/api/sensor-data`
+);
     const data = await response.json();
     /* =========================
    LAST 20 READINGS ONLY
@@ -245,16 +243,18 @@ async function loadSensorData() {
     } else {
       document.getElementById("thresholdAlert").style.display = "none";
     }
+const currentAlert =
+  document.getElementById("deviceAlertIcon");
 
-    const currentAlert = document.getElementById(`alert-${selectedBoat}`);
+if (currentAlert) {
 
-    if (currentAlert) {
-      if (latest.binWeight > THRESHOLD) {
-        currentAlert.style.display = "inline";
-      } else {
-        currentAlert.style.display = "none";
-      }
-    }
+  if (latest.binWeight > THRESHOLD) {
+    currentAlert.style.display = "inline";
+  } else {
+    currentAlert.style.display = "none";
+  }
+
+}
 
     /* =========================
        GPS TEXT
@@ -483,33 +483,45 @@ setInterval(() => {
   }
 }, 5000);
 
-async function loadBoats() {
-  const response = await fetch(`${API_URL}/api/boats`);
+function renderBoats() {
 
-  const boats = await response.json();
+  const container =
+    document.getElementById("boatsContainer");
 
-  const container = document.getElementById("boatsContainer");
+  container.innerHTML = `
 
-  container.innerHTML = "";
+    <button class="boatBtn selectedBoat">
 
-  boats.forEach((boat) => {
+      <div class="boatTop">
+
+        <span>AquaNova 1</span>
+
+        <span
+          id="deviceAlertIcon"
+          class="boatAlert"
+        >
+          ⚠️
+        </span>
+
+      </div>
+
+      <div class="boatStatus">
+        ● Active
+      </div>
+
+    </button>
+
+  `;
+
+  customBoats.forEach((boatName) => {
+
     container.innerHTML += `
-      <button
-        class="boatBtn"
-        data-boat-id="${boat._id}"
-        onclick="selectBoat('${boat._id}')"
-      >
+
+      <button class="boatBtn">
 
         <div class="boatTop">
 
-          <span>${boat.name}</span>
-
-          <span
-            id="alert-${boat._id}"
-            class="boatAlert"
-          >
-            ⚠️
-          </span>
+          <span>${boatName}</span>
 
         </div>
 
@@ -518,26 +530,11 @@ async function loadBoats() {
         </div>
 
       </button>
+
     `;
+
   });
 
-  if (boats.length > 0) {
-    selectedBoat = boats[0]._id;
-
-    document.querySelectorAll(".boatBtn").forEach((btn) => {
-      btn.classList.remove("selectedBoat");
-    });
-
-    const firstBoatBtn = document.querySelector(
-      `[data-boat-id="${selectedBoat}"]`,
-    );
-
-    if (firstBoatBtn) {
-      firstBoatBtn.classList.add("selectedBoat");
-    }
-
-    loadSensorData();
-  }
 }
 
 function toggleBoatMenu() {
@@ -564,40 +561,47 @@ function toggleUserMenu() {
    ADD BOAT
 ========================= */
 
-async function addBoat() {
-  const boatName = prompt("Enter Boat Name");
+function addBoat() {
+
+  const boatName =
+    prompt("Enter Boat Name");
 
   if (!boatName) return;
 
-  await fetch(`${API_URL}/api/boats`, {
-    method: "POST",
+  customBoats.push(boatName);
 
-    headers: {
-      "Content-Type": "application/json",
-    },
+  localStorage.setItem(
+    "customBoats",
+    JSON.stringify(customBoats)
+  );
 
-    body: JSON.stringify({
-      name: boatName,
-    }),
-  });
-
-  loadBoats();
+  renderBoats();
 }
 
 /* =========================
    REMOVE BOAT
 ========================= */
 
-async function removeBoat() {
-  const boatId = prompt("Enter Boat ID");
+function removeBoat() {
 
-  if (!boatId) return;
+  const boatName =
+    prompt("Enter Boat Name");
 
-  await fetch(`${API_URL}/api/boats/${boatId}`, {
-    method: "DELETE",
-  });
+  if (!boatName) return;
 
-  loadBoats();
+  customBoats =
+    customBoats.filter(
+      (boat) =>
+        boat.toLowerCase() !==
+        boatName.toLowerCase()
+    );
+
+  localStorage.setItem(
+    "customBoats",
+    JSON.stringify(customBoats)
+  );
+
+  renderBoats();
 }
 
 /* =========================
@@ -643,23 +647,4 @@ async function removeUser() {
   const data = await response.json();
 
   alert(data.message);
-}
-/* =========================
-   SELECT BOAT
-========================= */
-
-function selectBoat(boatId) {
-  selectedBoat = boatId;
-
-  document.querySelectorAll(".boatBtn").forEach((btn) => {
-    btn.classList.remove("selectedBoat");
-  });
-
-  const selectedBtn = document.querySelector(`[data-boat-id="${boatId}"]`);
-
-  if (selectedBtn) {
-    selectedBtn.classList.add("selectedBoat");
-  }
-
-  loadSensorData();
 }
