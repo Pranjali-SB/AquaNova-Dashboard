@@ -1,3 +1,6 @@
+let mapInstance = null;
+let marker = null;
+
 /* =========================
    FIREBASE CONFIG
 ========================= */
@@ -190,7 +193,6 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
 ========================= */
 
 let chartInstance = null;
-let mapInstance = null;
 let customBoats = JSON.parse(localStorage.getItem("customBoats")) || [];
 
 async function loadSensorData() {
@@ -388,47 +390,56 @@ async function loadSensorData() {
       },
     });
 
-    /* =========================
+ /* =========================
    MAP
 ========================= */
 
-    if (mapInstance) {
-      mapInstance.remove();
-    }
+const lat = latest.location.lat;
+const lng = latest.location.lng;
 
-    if (latest.location.lat === 0 && latest.location.lng === 0) {
-      document.getElementById("map").innerHTML =
-        "<div style='color:white;text-align:center;padding-top:150px;font-size:18px;'>GPS Signal Not Received.<br>Keep AquaNova under open sky.</div>";
+if (lat === 0 && lng === 0) {
 
-      return;
-    }
+  document.getElementById("map").innerHTML =
+    "<div style='color:white;text-align:center;padding-top:150px;font-size:18px;'>GPS Signal Not Received.<br>Keep AquaNova under open sky.</div>";
 
-    /* Clear previous message */
-    document.getElementById("map").innerHTML = "";
+  return;
+}
 
-    mapInstance = L.map("map").setView(
-      [latest.location.lat, latest.location.lng],
-      13,
-    );
+/* First Time Create Map */
+if (!mapInstance) {
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  document.getElementById("map").innerHTML = "";
+
+  mapInstance = L.map("map").setView(
+    [lat, lng],
+    18
+  );
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
       attribution: "OpenStreetMap",
-    }).addTo(mapInstance);
+      maxZoom: 25
+    }
+  ).addTo(mapInstance);
 
-    validData.forEach((item) => {
-      L.marker([item.location.lat, item.location.lng])
-        .addTo(mapInstance)
-        .bindPopup("Weight: " + item.binWeight + " g");
-    });
-  } catch (err) {
-    console.error(err);
+  marker = L.marker([lat, lng])
+    .addTo(mapInstance)
+    .bindPopup("AquaNova Current Location");
 
-    document.getElementById("deviceStatus").innerText = "● Offline";
+} else {
 
-    document.getElementById("deviceStatus").style.color = "red";
+  /* Update Marker Position Only */
+  marker.setLatLng([lat, lng]);
 
-    showAlert("Unable to load sensor data");
-  }
+  /* Smooth Movement */
+  mapInstance.panTo(
+    [lat, lng],
+    {
+      animate: true,
+      duration: 1
+    }
+  );
 }
 
 /* =========================
