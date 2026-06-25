@@ -393,42 +393,50 @@ async function loadSensorData() {
     /* =========================
    MAP
 ========================= */
+const lat = Number(latest.location?.lat || 0);
+const lng = Number(latest.location?.lng || 0);
 
-    const lat = latest.location.lat;
-    const lng = latest.location.lng;
+if (lat === 0 || lng === 0) {
 
-    if (lat === 0 && lng === 0) {
-      document.getElementById("map").innerHTML =
-        "<div style='color:white;text-align:center;padding-top:150px;font-size:18px;'>GPS Signal Not Received.<br>Keep AquaNova under open sky.</div>";
+    document.getElementById("map").innerHTML =
+    "<div style='color:white;text-align:center;padding-top:150px;font-size:18px;'>GPS Signal Not Received.<br>Keep AquaNova under open sky.</div>";
 
-      return;
+}
+else{
+
+    if(!mapInstance){
+
+        document.getElementById("map").innerHTML="";
+
+        mapInstance=L.map("map").setView([lat,lng],18);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+
+            attribution:"OpenStreetMap",
+
+            maxZoom:25
+
+        }).addTo(mapInstance);
+
+        marker=L.marker([lat,lng]).addTo(mapInstance);
+
+    }
+    else{
+
+        marker.setLatLng([lat,lng]);
+
+        mapInstance.panTo([lat,lng],{
+
+            animate:true,
+
+            duration:1
+
+        });
+
     }
 
-    /* First Time Create Map */
-    if (!mapInstance) {
-      document.getElementById("map").innerHTML = "";
-
-      mapInstance = L.map("map").setView([lat, lng], 18);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "OpenStreetMap",
-        maxZoom: 25,
-      }).addTo(mapInstance);
-
-      marker = L.marker([lat, lng])
-        .addTo(mapInstance)
-        .bindPopup("AquaNova Current Location");
-    } else {
-      /* Update Marker Position Only */
-      marker.setLatLng([lat, lng]);
-
-      /* Smooth Movement */
-      mapInstance.panTo([lat, lng], {
-        animate: true,
-        duration: 1,
-      });
-    }
-  } catch (err) {
+}
+   catch (err) {
     console.error(err);
 
     showAlert("Unable to load sensor data");
