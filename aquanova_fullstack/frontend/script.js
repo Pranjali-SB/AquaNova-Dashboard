@@ -393,50 +393,36 @@ async function loadSensorData() {
     /* =========================
    MAP
 ========================= */
-const lat = Number(latest.location?.lat || 0);
-const lng = Number(latest.location?.lng || 0);
+    const lat = Number(latest.location?.lat || 0);
+    const lng = Number(latest.location?.lng || 0);
 
-if (lat === 0 || lng === 0) {
+    if (lat === 0 || lng === 0) {
+      document.getElementById("map").innerHTML =
+        "<div style='color:white;text-align:center;padding-top:150px;font-size:18px;'>GPS Signal Not Received.<br>Keep AquaNova under open sky.</div>";
+    } else {
+      if (!mapInstance) {
+        document.getElementById("map").innerHTML = "";
 
-    document.getElementById("map").innerHTML =
-    "<div style='color:white;text-align:center;padding-top:150px;font-size:18px;'>GPS Signal Not Received.<br>Keep AquaNova under open sky.</div>";
+        mapInstance = L.map("map").setView([lat, lng], 18);
 
-}
-else{
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "OpenStreetMap",
 
-    if(!mapInstance){
-
-        document.getElementById("map").innerHTML="";
-
-        mapInstance=L.map("map").setView([lat,lng],18);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-
-            attribution:"OpenStreetMap",
-
-            maxZoom:25
-
+          maxZoom: 25,
         }).addTo(mapInstance);
 
-        marker=L.marker([lat,lng]).addTo(mapInstance);
+        marker = L.marker([lat, lng]).addTo(mapInstance);
+      } else {
+        marker.setLatLng([lat, lng]);
 
-    }
-    else{
+        mapInstance.panTo([lat, lng], {
+          animate: true,
 
-        marker.setLatLng([lat,lng]);
-
-        mapInstance.panTo([lat,lng],{
-
-            animate:true,
-
-            duration:1
-
+          duration: 1,
         });
-
+      }
     }
-
-}
-   catch (err) {
+  } catch (err) {
     console.error(err);
 
     showAlert("Unable to load sensor data");
